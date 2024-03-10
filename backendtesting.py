@@ -1,8 +1,15 @@
 class SmartPlug:
     def __init__(self, initialConsumptionRate):
+        self.name = "SmartPlug"
         self.switchedOn = False
         self.consumptionRate = initialConsumptionRate
         self.initialConsumptionRate = initialConsumptionRate
+
+    def getName(self):
+        return self.name
+
+    def setName(self,name):
+        self.name = name
 
     def toggleSwitch(self):
         self.switchedOn = not self.switchedOn
@@ -26,7 +33,7 @@ class SmartPlug:
         self.consumptionRate = rate
 
     def status(self):
-        return f"SmartPlug: switchedOn = {self.switchedOn}, consumptionRate = {self.consumptionRate}, initialConsumptionRate = {self.initialConsumptionRate}"
+        return f"{self.name}: switchedOn = {self.switchedOn}, consumptionRate = {self.consumptionRate}, initialConsumptionRate = {self.initialConsumptionRate}"
 
     def __str__(self):
         return self.status()
@@ -34,10 +41,17 @@ class SmartPlug:
 
 class SmartFridge:
     def __init__(self):
+        self.name = "SmartFridge"
         self.switchedOn = False
         self.defaultTemperature = 3
         self.temperature = None
         self.temperatureOptions = {1: "1 Degree Celsius", 3: "3 Degrees Celsius", 5: "5 Degrees Celsius"}
+
+    def getName(self):
+        return self.name
+
+    def setName(self,name):
+        self.name = name
 
     def toggleSwitch(self):
         self.switchedOn = not self.switchedOn
@@ -64,7 +78,7 @@ class SmartFridge:
         return self.temperatureOptions[self.temperature]
 
     def status(self):
-        return f"SmartFridge: switchedOn = {self.switchedOn}, Temperature Option = {self.temperature}, initialTemperature = {self.temperatureOptions.get(self.defaultTemperature, 'No Initial Temperature')}"
+        return f"{self.name}: switchedOn = {self.switchedOn}, Temperature Option = {self.temperature}, initialTemperature = {self.temperatureOptions.get(self.defaultTemperature, 'No Initial Temperature')}"
 
     def __str__(self):
         return self.status()
@@ -72,10 +86,17 @@ class SmartFridge:
 
 class SmartDoorbell:
     def __init__(self, sleepMode):
+        self.name = "SmartDoorbell"
         self.switchedOn = False
         self.defaultState = False
         self.sleepSettings = {True: "On", False: "Off"}
         self.setOption(sleepMode)
+
+    def getName(self):
+        return self.name
+
+    def setName(self,name):
+        self.name = name
 
     def toggleSwitch(self):
         self.switchedOn = not self.switchedOn
@@ -103,7 +124,6 @@ class SmartDoorbell:
 
     def status(self):
         return "Smart Doorbell -  On = {}, Sleep Mode = {}, Default State = {}".format(self.switchedOn, self.sleepMode, self.sleepSettings.get(self.defaultState, "No Initial State"))
-
 
 class SmartHome:
     def __init__(self):
