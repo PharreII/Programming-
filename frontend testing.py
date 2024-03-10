@@ -13,22 +13,36 @@ def setUpHome():
     return smartHome1
 
 
+
+
 class EditDeviceWindow(tk.Toplevel):
     def __init__(self, device):
         super().__init__()
 
         self.device = device
+        self.UpdateGUI(device)
+
+    def UpdateGUI(self,device):
+
+        self.destroy
+        # if no device, create one        
+        if device is None:
+            device = SmartPlug(0)
+            deviceList = tk.Listbox(self)
+            deviceList.bind("<<ListboxSelect>>", self.setDevice)
+            deviceList.insert(1,"Smart Plug")
+            deviceList.insert(2,"Smart Doorbell")
+            deviceList.pack()
 
         self.title("Edit Device")
-        self.geometry("400x200")
-
+ 
         self.deviceNameLabel = tk.Label(self, text="Device Name:")
         self.deviceNameLabel.pack()
 
         self.deviceNameEntry = tk.Entry(self, width=20)
-        self.deviceNameEntry.insert(0, device.name)  
+        self.deviceNameEntry.insert(0, device.getName())  
         self.deviceNameEntry.pack()
-
+        
         if isinstance(device, SmartPlug):
             lbl = tk.Label(self, text="Consumption Rate:")
             lbl.pack(side="left")
@@ -49,15 +63,20 @@ class EditDeviceWindow(tk.Toplevel):
         lbl.pack(side="left")
 
         self.tkValue = tk.IntVar()
-        self.tkValue.set(self.device.getSwitchedOn())
+        self.tkValue.set(device.getSwitchedOn())
         val = tk.Entry(self, width=20, textvariable=self.tkValue)
         val.pack(side="left")
 
         self.saveButton = tk.Button(self, text="Save", command=self.saveChanges)
-        self.saveButton.pack(side="bottom")
+        self.saveButton.pack()
 
     def saveChanges(self):
-        self.device.name = self.deviceNameEntry.get()
+        
+        if self.device is None:
+            self.device = SmartPlug(666)
+            smartHome1.addDevice(self.device)
+
+        self.device.setName( self.deviceNameEntry.get() )
 
         if isinstance(self.device,SmartPlug):
             self.device.consumptionRate = float(self.consumptionRateEntry.get()) 
@@ -67,12 +86,37 @@ class EditDeviceWindow(tk.Toplevel):
             if sleepMode.lower() == "True":
                 self.device.setOption(True)
             elif sleepMode.lower() == "False":
-                self.device.setOption(False)
+                 self.device.setOption(False)
             else:
                 print("Invalid sleep mode")
 
-        self.device.setConsumptionRate(self.tkValue.get())
+       
+            self.device.setOption(self.tkValue.get())
+            self.device.setOption(self.sleepModeEntry.get())
         self.destroy()
+
+    def setDevice(self, event):
+
+        if isinstance(self.device,SmartPlug):
+            
+            self.device.consumptionRate = float(self.consumptionRateEntry.get()) 
+
+        elif isinstance(self.device,SmartDoorbell):
+            sleepMode = self.sleepModeEntry.get()
+            
+       
+            self.device.setOption(self.tkValue.get())
+            self.device.setOption(self.sleepModeEntry.get())
+        self.UpdateGUI(self.device)
+        
+
+
+        
+        
+        
+
+
+
 
 
 class SmartHomeSystem(tk.Tk):
@@ -81,12 +125,13 @@ class SmartHomeSystem(tk.Tk):
         self.smartHome = smartHome
 
         self.title("Smart Home System")
-        self.geometry("650x500")
 
         self.topFrame = tk.Frame(self)
         self.updateGUI()  
 
     def updateGUI(self):
+        
+        
        
         for widget in self.topFrame.winfo_children():
             widget.destroy()
@@ -97,10 +142,17 @@ class SmartHomeSystem(tk.Tk):
         turnOnAllButton = tk.Button(self.topFrame, text="Turn on all")
         turnOnAllButton.grid(row=y, column=0, padx=5, pady=5)
         turnOnAllButton.bind("<Button-1>", self.turnOnAllDevices)
+        turnOnAllButton.grid(row=y, column=1, padx=5, pady=5)
 
         turnOffAllButton = tk.Button(self.topFrame, text="Turn off all")
         turnOffAllButton.grid(row=y, column=1, padx=5, pady=5)
         turnOffAllButton.bind("<Button-1>", self.turnOffAllDevices)
+        turnOffAllButton.grid(row=y, column=2, padx=5, pady=5)
+
+        addButton = tk.Button(self.topFrame, text="Add")
+        addButton.grid(row=y, column=1, padx=5, pady=5)
+        addButton.bind("<Button-1>", self.addDevice)
+        addButton.grid(row=y, column=3, padx=5, pady=5)
 
         y += 1
 
@@ -128,10 +180,14 @@ class SmartHomeSystem(tk.Tk):
         for device in self.smartHome.getDevices():
             device.turnOn()
         self.updateGUI()
-
+    
     def turnOffAllDevices(self, event):
         for device in self.smartHome.getDevices():
             device.turnOff()
+        self.updateGUI()
+
+    def addDevice(self, event):
+        editWindow = EditDeviceWindow(None)
         self.updateGUI()
 
     def toggleDevice(self, event, index):
